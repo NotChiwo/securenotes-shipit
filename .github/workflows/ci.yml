@@ -1,0 +1,33 @@
+# SecureNotes CI — Week 17, Part B
+# Every push and pull request to main runs the FULL test suite on a clean
+# Ubuntu machine (security + API + accessibility + performance + pipeline).
+
+name: CI
+
+# >>> TASK 6: add the triggers (push + pull_request on main)
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+# <<< END TASK 6
+
+# >>> TASK 7: add a `test` job that runs on ubuntu-latest with the four steps
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run the full test suite
+        run: pytest -q
+# <<< END TASK 7
