@@ -82,17 +82,34 @@ you **Approve** or **Request changes**.
 
 ---
 
+## Test Results
+
+Command: python -m pytest -q
+
+Result: 38 passed, 0 failed (5 API, 7 security, 13 accessibility, 5 performance, 8 pipeline)
+
+Warnings: 1 non-blocking deprecation warning from the httpx/Starlette TestClient
+
+---
+
 ## Reflection (answer in 3–4 sentences)
 
 1. Which accessibility fix would a sighted mouse user never notice but a
    screen-reader or keyboard user depends on? Why?
+
+   Tying each input to a real `<label for="...">` looks exactly the same on screen as the old
+   `<span class="fake-label">`, so a sighted mouse user would never see a difference. A screen
+   reader, though, only announces "Username" or "Password" when the label is actually linked to the
+   input's `id`; without it, the user just hears "edit text" and has to guess what to type. Real
+   labels also make the label text clickable to focus the field, which helps anyone with shaky
+   pointer control. It's a tiny change in the HTML that decides whether the login form is usable at all.
+
 2. Your pipeline runs the Week 16 checks automatically now. How does that stop a
    teammate from *accidentally* shipping an inaccessible page six weeks from now?
 
-### 1. Which accessibility fix would a sighted mouse user never notice but a screen-reader or keyboard user depends on? Why?
-
-The real `<label for="...">` on the inputs and the real `<button>`. A mouse user sees the words "Username" and "Password" next to the boxes and can click the fake button, so it looks fine. But a screen reader only announces a field's name if it's tied to the input with a label, and a `<div>` pretending to be a button can't be reached with the Tab key or pressed with Enter. Without those fixes, someone using a keyboard or screen reader can't log in at all.
-
-### 2. How does the pipeline stop a teammate from accidentally shipping an inaccessible page six weeks from now?
-
-The accessibility and performance tests now run automatically on every push and pull request, on a clean machine. If a teammate later removes an alt text, skips a heading level, or picks a low-contrast color, the pipeline goes red and the merge button stays locked until it's fixed. So nobody has to remember to check by hand, because the check can't be skipped.
+   Every push and pull request to `main` runs the full `pytest` suite on a clean Ubuntu machine,
+   including the accessibility and performance tests. If a teammate later removes an `alt`, swaps a
+   `<button>` back to a clickable `<div>`, or lightens a color below 4.5:1, the matching test fails
+   and the PR shows a red X instead of a green check. That makes the mistake visible before anyone
+   merges, instead of relying on someone remembering the WCAG rules from Week 16. The checks become
+   part of how we ship, not something we have to remember to do by hand.
